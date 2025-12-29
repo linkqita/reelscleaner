@@ -15,7 +15,7 @@ button{background:#38BFB3;color:#022c22;font-weight:bold}
 
 <div class="box">
 <h2>Reels Link Cleaner</h2>
-<input id="in" placeholder="Tempel link Reels di sini">
+<input id="inp" placeholder="Tempel link Reels di sini">
 <button onclick="convert()">CONVERT</button>
 <input id="out" placeholder="Hasil link Reel asli" onclick="this.select()">
 <div class="small">Support: share, fb.watch, reel, watch</div>
@@ -23,10 +23,10 @@ button{background:#38BFB3;color:#022c22;font-weight:bold}
 
 <script>
 async function convert(){
- let raw = in.value.trim();
+ let raw = inp.value.trim();
  if(!raw){ alert("Masukkan link dulu"); return; }
 
- // Normalisasi
+ // normalisasi awal
  try{
   const u = new URL(raw);
 
@@ -38,19 +38,20 @@ async function convert(){
 
  }catch(e){}
 
- // Ambil ID reel asli
+ // resolver OG (no CORS, public)
  try{
-  const res = await fetch("https://r.jina.ai/"+raw);
-  const html = await res.text();
-  const id = html.match(/"video_id":"(\d+)"/);
-  if(id){
-    out.value = "https://www.facebook.com/reel/"+id[1];
-    return;
-  }
+   const api = "https://r.jina.ai/https://www.facebook.com/plugins/video.php?href="+encodeURIComponent(raw);
+   const html = await fetch(api).then(r=>r.text());
+   const id = html.match(/video_id=(\d+)/);
+   if(id){
+     out.value = "https://www.facebook.com/reel/"+id[1];
+     return;
+   }
  }catch(e){}
 
  out.value = raw;
 }
 </script>
+
 </body>
 </html>
