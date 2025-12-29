@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Reels Link Cleaner</title>
+<style>
+body{margin:0;background:#0f172a;color:white;font-family:Arial;display:flex;justify-content:center;align-items:center;height:100vh}
+.box{background:#020617;padding:25px;border-radius:14px;width:360px;text-align:center}
+input,button{width:100%;padding:12px;border-radius:8px;border:0;margin-top:10px}
+button{background:#38BFB3;color:#022c22;font-weight:bold}
+.small{font-size:12px;color:#94a3b8;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>Reels Link Cleaner</h2>
+<input id="in" placeholder="Tempel link Reels di sini">
+<button onclick="convert()">CONVERT</button>
+<input id="out" placeholder="Hasil link Reel asli" onclick="this.select()">
+<div class="small">Support: share, fb.watch, reel, watch</div>
+</div>
+
+<script>
+async function convert(){
+ let raw = in.value.trim();
+ if(!raw){ alert("Masukkan link dulu"); return; }
+
+ // Normalisasi
+ try{
+  const u = new URL(raw);
+
+  if(u.hostname.includes("fb.watch"))
+    raw = "https://www.facebook.com/watch/?v="+u.pathname.replace("/","");
+
+  if(u.pathname.includes("/share/"))
+    raw = "https://www.facebook.com/watch/?v="+u.pathname.split("/").pop();
+
+ }catch(e){}
+
+ // Ambil ID reel asli
+ try{
+  const res = await fetch("https://r.jina.ai/"+raw);
+  const html = await res.text();
+  const id = html.match(/"video_id":"(\d+)"/);
+  if(id){
+    out.value = "https://www.facebook.com/reel/"+id[1];
+    return;
+  }
+ }catch(e){}
+
+ out.value = raw;
+}
+</script>
+</body>
+</html>
